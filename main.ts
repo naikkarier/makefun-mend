@@ -906,6 +906,9 @@ function run(args: string[]): { code: number; out: string[] } {
   } catch {
     if (file !== null) return { code: 2, out: ['error: no-patch'] };
   }
+  // A patch saved with a UTF-8 byte order mark would otherwise break format
+  // detection and JSON parsing, so strip one leading BOM before parsing.
+  if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
   const lines = patchLines(text);
   const kind = format === null || format === 'auto' ? detect(lines) : format;
   if (kind === null) return { code: 2, out: ['error: format'] };
